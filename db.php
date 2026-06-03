@@ -7,10 +7,22 @@
 //  require_once 'db.php';
 // ============================================
 
-$host     = "localhost";
-$dbname   = "iiui_gym";
-$username = "root";
-$password = "";          // XAMPP default is empty
+// Load environment variables from .env file if it exists
+if (file_exists(__DIR__ . '/.env')) {
+    $env_file = file_get_contents(__DIR__ . '/.env');
+    foreach (explode("\n", $env_file) as $line) {
+        if (trim($line) && strpos($line, '=') !== false && strpos($line, '#') !== 0) {
+            list($key, $value) = explode('=', $line, 2);
+            $_ENV[trim($key)] = trim($value);
+        }
+    }
+}
+
+// Get database credentials from environment variables or defaults
+$host     = $_ENV['DB_HOST'] ?? "localhost";
+$dbname   = $_ENV['DB_NAME'] ?? "iiui_gym";
+$username = $_ENV['DB_USER'] ?? "root";
+$password = $_ENV['DB_PASS'] ?? "";
 
 $conn = new mysqli($host, $username, $password, $dbname);
 
