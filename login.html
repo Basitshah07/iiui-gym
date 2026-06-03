@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<!-- ============================================
+     FILE: login.html
+     PURPOSE: Member Login Page
+     FEATURES:
+     - Firebase Email/Password authentication
+     - IIUI email validation
+     - Redirects to dashboard on success
+     - Redirects to OTP page if not verified
+     ============================================ -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="Login to your IIUI Gym member account. Access your profile, membership details, and gym information."/>
+  <title>Member Login — IIUI Gym</title>
+  <link rel="stylesheet" href="style.css"/>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏋️</text></svg>">
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar" id="navbar">
+    <a href="index.html" class="nav-brand">
+      <span class="brand-icon">🏋️</span>
+      <span>IIUI <span class="brand-accent">GYM</span></span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="register.html">Join Now</a></li>
+      <li><a href="login.html" class="active">Member Login</a></li>
+      <li><a href="contact.html">Contact</a></li>
+      <li><a href="admin-login.html">Admin</a></li>
+    </ul>
+    <div class="hamburger" onclick="toggleMenu()" aria-label="Toggle navigation menu">&#9776;</div>
+  </nav>
+
+  <!-- LOGIN FORM -->
+  <section class="form-section">
+    <div class="form-card login-card">
+      <span class="form-icon">🏋️</span>
+      <h2>Member <span class="highlight">Login</span></h2>
+      <p class="form-subtitle">Welcome back! Login to view your profile</p>
+
+      <form id="memberLoginForm" novalidate>
+
+        <div class="form-group">
+          <label for="login_email">IIUI Email Address</label>
+          <input type="email" name="email" id="login_email"
+                 placeholder="yourname@iiu.edu.pk" required/>
+        </div>
+
+        <div class="form-group">
+          <label for="login_password">Password</label>
+          <input type="password" name="password" id="login_password"
+                 placeholder="••••••••" required/>
+          <span class="error-msg" id="loginErr"></span>
+        </div>
+
+        <button type="submit" class="btn-primary full-width" id="loginBtn">
+          🔓 Login
+        </button>
+
+      </form>
+
+      <p class="form-footer">
+        Not a member yet? <a href="register.html">Register here</a>
+      </p>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-bottom">
+        © 2026 IIUI Gym — Sector H-10, Islamabad, Pakistan
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="main.js"></script>
+</body>
+</html>

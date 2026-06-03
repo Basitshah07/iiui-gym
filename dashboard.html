@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<!-- ============================================
+     FILE: dashboard.html
+     PURPOSE: Member Profile Dashboard
+     FEATURES:
+     - Protected route (requires auth)
+     - Displays member info cards
+     - Shows current plan with features
+     - Expiry warning popup
+     - Gym information section
+     ============================================ -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="IIUI Gym Member Dashboard — View your profile, membership plan, and gym information."/>
+  <title>My Profile — IIUI Gym</title>
+  <link rel="stylesheet" href="style.css"/>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏋️</text></svg>">
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar" id="navbar">
+    <a href="index.html" class="nav-brand">
+      <span class="brand-icon">🏋️</span>
+      <span>IIUI <span class="brand-accent">GYM</span></span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="dashboard.html" class="active">My Profile</a></li>
+      <li><a href="contact.html">Contact</a></li>
+      <li><a href="#" onclick="handleLogout(); return false;">Logout</a></li>
+    </ul>
+    <div class="hamburger" onclick="toggleMenu()" aria-label="Toggle navigation menu">&#9776;</div>
+  </nav>
+
+  <!-- DASHBOARD BODY -->
+  <div class="dashboard">
+
+    <div class="dashboard-header">
+      <h2>My <span class="highlight">Profile</span></h2>
+      <button class="btn-danger" onclick="handleLogout()">🚪 Logout</button>
+    </div>
+
+    <p class="dashboard-welcome">
+      Welcome, <strong id="welcome-name">Loading...</strong>!
+      &nbsp;|&nbsp; IIUI Gym, Islamabad &nbsp;|&nbsp; Mon–Fri: 9AM – 7PM
+    </p>
+
+    <!-- MEMBER INFO CARDS -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="num" id="member-name" style="font-size:1.2rem; word-break:break-all;">—</div>
+        <div class="label">Full Name</div>
+      </div>
+      <div class="stat-card">
+        <div class="num" id="member-email" style="font-size:0.9rem; word-break:break-all;">—</div>
+        <div class="label">Email</div>
+      </div>
+      <div class="stat-card">
+        <div class="num" id="member-phone" style="font-size:1.2rem;">—</div>
+        <div class="label">Phone</div>
+      </div>
+      <div class="stat-card">
+        <div class="num" id="member-joined" style="font-size:1.2rem;">—</div>
+        <div class="label">Joined Date</div>
+      </div>
+      <div class="stat-card">
+        <div class="num" id="member-expiry" style="font-size:1.2rem;">—</div>
+        <div class="label">Expiry Date</div>
+      </div>
+      <div class="stat-card">
+        <div class="num" id="member-days" style="font-size:1.2rem;">—</div>
+        <div class="label">Days Remaining</div>
+      </div>
+    </div>
+
+    <!-- MEMBERSHIP PLAN CARD -->
+    <h3>Your <span class="highlight">Membership Plan</span></h3>
+    <div id="plan-card-container" style="max-width:360px; margin-bottom:2rem;">
+      <div class="plan-card" style="text-align:center; padding:3rem;">
+        <span class="spinner"></span>
+        <p class="text-muted mt-2">Loading plan details...</p>
+      </div>
+    </div>
+
+    <!-- GYM INFO -->
+    <h3>Gym <span class="highlight">Information</span></h3>
+    <div class="contact-info-card">
+      <div class="info-item">
+        <span class="info-icon">🏫</span> IIUI Gym — International Islamic University
+      </div>
+      <div class="info-item">
+        <span class="info-icon">📍</span> Sector H-10, Islamabad, Pakistan
+      </div>
+      <div class="info-item">
+        <span class="info-icon">🕐</span> Mon–Fri: 9AM – 7PM
+      </div>
+      <div class="info-item">
+        <span class="info-icon">📞</span> 051-9257948
+      </div>
+    </div>
+
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-bottom">
+        © 2026 IIUI Gym — Sector H-10, Islamabad, Pakistan
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="main.js"></script>
+  <script>
+    // Guard: redirect if not logged in
+    auth.onAuthStateChanged((user) => {
+      if (!user) {
+        window.location.href = 'login.html';
+        return;
+      }
+      if (!user.emailVerified) {
+        window.location.href = 'verify-otp.html';
+        return;
+      }
+      // Load dashboard data
+      loadMemberDashboard();
+    });
+  </script>
+</body>
+</html>

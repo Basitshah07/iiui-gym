@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<!-- ============================================
+     FILE: register.html
+     PURPOSE: Member Registration Page
+     FEATURES:
+     - IIUI email validation (@iiu.edu.pk only)
+     - Password strength indicator
+     - Firebase Auth registration
+     - Email verification (OTP) sent automatically
+     - Member data saved to Firestore
+     ============================================ -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="Register as a member at IIUI Gym. Only IIUI students and faculty with @iiu.edu.pk email can register."/>
+  <title>Join IIUI Gym — Register</title>
+  <link rel="stylesheet" href="style.css"/>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏋️</text></svg>">
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar" id="navbar">
+    <a href="index.html" class="nav-brand">
+      <span class="brand-icon">🏋️</span>
+      <span>IIUI <span class="brand-accent">GYM</span></span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="register.html" class="active">Join Now</a></li>
+      <li><a href="login.html">Member Login</a></li>
+      <li><a href="contact.html">Contact</a></li>
+      <li><a href="admin-login.html">Admin</a></li>
+    </ul>
+    <div class="hamburger" onclick="toggleMenu()" aria-label="Toggle navigation menu">&#9776;</div>
+  </nav>
+
+  <!-- REGISTRATION FORM -->
+  <section class="form-section">
+    <div class="form-card">
+      <h2>Register as a <span class="highlight">Member</span></h2>
+      <p class="form-subtitle">Fill in your details to get started. Only IIUI emails allowed.</p>
+
+      <form id="registerForm" novalidate>
+
+        <div class="form-group">
+          <label for="full_name">Full Name</label>
+          <input type="text" name="full_name" id="full_name"
+                 placeholder="e.g. Ali Hassan" required/>
+          <span class="error-msg" id="nameErr"></span>
+        </div>
+
+        <div class="form-group">
+          <label for="email">IIUI Email Address</label>
+          <input type="email" name="email" id="email"
+                 placeholder="yourname@iiu.edu.pk" required/>
+          <span class="error-msg" id="emailErr"></span>
+          <p class="form-hint">Only @iiu.edu.pk emails are accepted</p>
+        </div>
+
+        <div class="form-group">
+          <label for="phone">Phone Number</label>
+          <input type="text" name="phone" id="phone"
+                 placeholder="03XX-XXXXXXX" required/>
+          <span class="error-msg" id="phoneErr"></span>
+        </div>
+
+        <div class="form-group">
+          <label for="plan">Membership Plan</label>
+          <select name="plan" id="plan">
+            <option value="basic">Basic — Rs. 2,000/month</option>
+            <option value="standard" selected>Standard — Rs. 4,000/month</option>
+            <option value="premium">Premium — Rs. 7,000/month</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="joined_date">Join Date</label>
+          <input type="date" name="joined_date" id="joined_date" required/>
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" name="password" id="password"
+                 placeholder="Minimum 6 characters" required/>
+          <div class="password-strength">
+            <div class="strength-bar"></div>
+          </div>
+          <span class="error-msg" id="passErr"></span>
+        </div>
+
+        <div class="form-group">
+          <label for="confirm_password">Confirm Password</label>
+          <input type="password" name="confirm_password" id="confirm_password"
+                 placeholder="Re-enter your password" required/>
+          <span class="error-msg" id="confirmErr"></span>
+        </div>
+
+        <button type="submit" class="btn-primary full-width" id="registerBtn">
+          🚀 Register Now
+        </button>
+
+      </form>
+
+      <p class="form-footer">
+        Already a member? <a href="login.html">Login here</a>
+      </p>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-bottom">
+        © 2026 IIUI Gym — Sector H-10, Islamabad, Pakistan
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="main.js"></script>
+  <script>
+    // Pre-select plan from URL parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    const planParam = urlParams.get('plan');
+    if (planParam && ['basic', 'standard', 'premium'].includes(planParam)) {
+      document.getElementById('plan').value = planParam;
+    }
+  </script>
+</body>
+</html>

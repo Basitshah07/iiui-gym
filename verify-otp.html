@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<!-- ============================================
+     FILE: verify-otp.html
+     PURPOSE: Email OTP Verification Page
+     FEATURES:
+     - Shows verification status
+     - Resend verification email button
+     - Check verification status button
+     - Auto-redirect when verified
+     ============================================ -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="Verify your IIUI Gym account email address to activate your membership."/>
+  <title>Verify Email — IIUI Gym</title>
+  <link rel="stylesheet" href="style.css"/>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏋️</text></svg>">
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar" id="navbar">
+    <a href="index.html" class="nav-brand">
+      <span class="brand-icon">🏋️</span>
+      <span>IIUI <span class="brand-accent">GYM</span></span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="register.html">Join Now</a></li>
+      <li><a href="login.html">Member Login</a></li>
+      <li><a href="contact.html">Contact</a></li>
+    </ul>
+    <div class="hamburger" onclick="toggleMenu()" aria-label="Toggle navigation menu">&#9776;</div>
+  </nav>
+
+  <!-- VERIFICATION SECTION -->
+  <section class="form-section">
+    <div class="form-card login-card" style="max-width:480px;">
+      <span class="form-icon">📧</span>
+      <h2>Verify Your <span class="highlight">Email</span></h2>
+      <p class="form-subtitle">
+        We've sent a verification link to your IIUI email address.
+        Click the link in the email, then come back here and press the button below.
+      </p>
+
+      <div class="alert warning" style="text-align:left;">
+        ⚠️ Check your <strong>inbox</strong> and <strong>spam folder</strong> for the verification email from Firebase.
+      </div>
+
+      <!-- OTP Visual Display (decorative) -->
+      <div class="otp-container">
+        <input class="otp-input" type="text" maxlength="1" value="●" readonly/>
+        <input class="otp-input" type="text" maxlength="1" value="●" readonly/>
+        <input class="otp-input" type="text" maxlength="1" value="●" readonly/>
+        <input class="otp-input" type="text" maxlength="1" value="●" readonly/>
+        <input class="otp-input" type="text" maxlength="1" value="●" readonly/>
+        <input class="otp-input" type="text" maxlength="1" value="●" readonly/>
+      </div>
+
+      <p class="text-muted" style="font-size:0.82rem; margin-bottom:1.5rem;">
+        A verification email has been sent. Please click the link in the email to verify your account.
+      </p>
+
+      <!-- Action Buttons -->
+      <button class="btn-primary full-width" onclick="checkVerification()" id="checkVerifyBtn">
+        ✅ I've Verified — Continue
+      </button>
+
+      <button class="btn-outline full-width mt-2" onclick="resendVerification()" id="resendBtn"
+              style="width:100%; margin-top:0.8rem;">
+        📩 Resend Verification Email
+      </button>
+
+      <div class="resend-timer mt-2" id="resendTimer"></div>
+
+      <p class="form-footer">
+        <a href="login.html">← Back to Login</a>
+      </p>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-bottom">
+        © 2026 IIUI Gym — Sector H-10, Islamabad, Pakistan
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="main.js"></script>
+  <script>
+    // If already verified, redirect
+    auth.onAuthStateChanged(async (user) => {
+      if (!user) {
+        window.location.href = 'login.html';
+        return;
+      }
+      await user.reload();
+      if (user.emailVerified) {
+        showToast('Email already verified! Redirecting...', 'success');
+        setTimeout(() => {
+          window.location.href = 'dashboard.html';
+        }, 1500);
+      }
+    });
+
+    // Resend cooldown
+    let resendCooldown = 0;
+    function startResendTimer() {
+      resendCooldown = 60;
+      const resendBtn = document.getElementById('resendBtn');
+      const timerEl = document.getElementById('resendTimer');
+
+      resendBtn.disabled = true;
+
+      const interval = setInterval(() => {
+        resendCooldown--;
+        timerEl.textContent = `Resend available in ${resendCooldown}s`;
+        if (resendCooldown <= 0) {
+          clearInterval(interval);
+          resendBtn.disabled = false;
+          timerEl.textContent = '';
+        }
+      }, 1000);
+    }
+
+    // Override resend to include timer
+    const originalResend = resendVerification;
+    resendVerification = async function() {
+      await originalResend();
+      startResendTimer();
+    };
+  </script>
+</body>
+</html>

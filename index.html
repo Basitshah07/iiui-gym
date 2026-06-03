@@ -1,93 +1,216 @@
 <!DOCTYPE html>
 <!-- ============================================
      FILE: index.html
-     PURPOSE: Home Page — Shows hero section
-     and membership plans
+     PURPOSE: Home Page — Hero, Stats, Features,
+     Membership Plans, About IIUI, Footer
+     TECH: Static HTML + CSS + JavaScript
      ============================================ -->
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>IIUI Gym</title>
+  <meta name="description" content="IIUI Gym — The official fitness center of International Islamic University Islamabad. Join now for premium gym facilities, personal training, and more."/>
+  <title>IIUI Gym — International Islamic University Islamabad</title>
   <link rel="stylesheet" href="style.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏋️</text></svg>">
 </head>
 <body>
 
   <!-- ===== NAVBAR ===== -->
-  <nav class="navbar">
-    <div class="nav-brand">⚡ IIUI Gym</div>
-    <ul class="nav-links">
+  <nav class="navbar" id="navbar">
+    <a href="index.html" class="nav-brand">
+      <span class="brand-icon">🏋️</span>
+      <span>IIUI <span class="brand-accent">GYM</span></span>
+    </a>
+    <ul class="nav-links" id="navLinks">
       <li><a href="index.html" class="active">Home</a></li>
-      <li><a href="register.php">Join Now</a></li>
-      <li><a href="member_login.php">Member Login</a></li>
-      <li><a href="contact.php">Contact</a></li>
-      <li><a href="login.php">Admin</a></li>
+      <li><a href="#features">Features</a></li>
+      <li><a href="#plans">Plans</a></li>
+      <li><a href="register.html">Join Now</a></li>
+      <li><a href="login.html">Member Login</a></li>
+      <li><a href="contact.html">Contact</a></li>
+      <li><a href="admin-login.html">Admin</a></li>
     </ul>
-    <!-- Hamburger for mobile -->
-    <div class="hamburger" onclick="toggleMenu()">&#9776;</div>
+    <div class="hamburger" onclick="toggleMenu()" aria-label="Toggle navigation menu">&#9776;</div>
   </nav>
 
-  <!-- ===== HERO ===== -->
-  <section class="hero">
+  <!-- ===== HERO SECTION ===== -->
+  <section class="hero" id="hero">
     <div class="hero-content">
-      <h1>FORGE YOUR <span>STRENGTH</span></h1>
-      <p>The official gym of International Islamic University Islamabad. Train hard. Excel further.</p>
-      <a href="register.php" class="btn-primary">Join Today — Free Trial</a>
+      <div class="hero-badge">🔥 IIUI Official Fitness Center</div>
+      <h1>FORGE YOUR <span class="highlight">STRENGTH</span></h1>
+      <p>The official gym of International Islamic University Islamabad. Train hard, excel further. Exclusive for IIUI students and faculty.</p>
+      <div class="hero-buttons">
+        <a href="register.html" class="btn-primary">🚀 Join Today — Free Trial</a>
+        <a href="#plans" class="btn-outline">View Plans ↓</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== STATS BAR ===== -->
+  <div class="stats-bar animate-on-scroll">
+    <div class="stat-item">
+      <span class="stat-num" data-count="500">0</span>
+      <span class="stat-label">Active Members</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num" data-count="12">0</span>
+      <span class="stat-label">Expert Trainers</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num" data-count="50">0</span>
+      <span class="stat-label">Equipment</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num" data-count="6">0</span>
+      <span class="stat-label">Years Running</span>
+    </div>
+  </div>
+
+  <!-- ===== FEATURES SECTION ===== -->
+  <section class="section" id="features">
+    <div class="section-header animate-on-scroll">
+      <span class="section-tag">Why Choose Us</span>
+      <h2>Premium <span class="highlight">Features</span></h2>
+      <p>Everything you need for your fitness journey at IIUI</p>
+    </div>
+
+    <div class="features-grid">
+      <div class="feature-card animate-on-scroll">
+        <div class="feature-icon">🏋️</div>
+        <h3>Modern Equipment</h3>
+        <p>State-of-the-art cardio machines, free weights, and resistance training equipment imported from top global brands.</p>
+      </div>
+      <div class="feature-card animate-on-scroll">
+        <div class="feature-icon">👨‍🏫</div>
+        <h3>Certified Trainers</h3>
+        <p>Professional fitness trainers certified by Pakistan Sports Board to guide your workout and nutrition plans.</p>
+      </div>
+      <div class="feature-card animate-on-scroll">
+        <div class="feature-icon">📧</div>
+        <h3>IIUI Email Auth</h3>
+        <p>Secure access exclusively for IIUI students and faculty. Register with your @iiu.edu.pk email and verify via OTP.</p>
+      </div>
+      <div class="feature-card animate-on-scroll">
+        <div class="feature-icon">📱</div>
+        <h3>SMS & Email Alerts</h3>
+        <p>Get notified about membership expiry, class schedules, and special announcements via email and SMS alerts.</p>
+      </div>
+      <div class="feature-card animate-on-scroll">
+        <div class="feature-icon">🔒</div>
+        <h3>Secure Dashboard</h3>
+        <p>Personal member dashboard with encrypted password storage, profile management, and membership tracking.</p>
+      </div>
+      <div class="feature-card animate-on-scroll">
+        <div class="feature-icon">🕌</div>
+        <h3>Prayer-Friendly Schedule</h3>
+        <p>Gym timings aligned with prayer schedules. Separate sessions for male and female students as per IIUI policy.</p>
+      </div>
     </div>
   </section>
 
   <!-- ===== MEMBERSHIP PLANS ===== -->
-  <section class="plans" id="plans">
-    <h2>Membership <span>Plans</span></h2>
+  <section class="plans section" id="plans">
+    <div class="section-header animate-on-scroll">
+      <span class="section-tag">Membership</span>
+      <h2>Choose Your <span class="highlight">Plan</span></h2>
+      <p>Flexible plans designed for IIUI students and staff</p>
+    </div>
+
     <div class="plans-grid">
-
-      <div class="plan-card">
+      <div class="plan-card animate-on-scroll">
         <h3>Basic</h3>
-        <div class="price">Rs. 2,000<span>/month</span></div>
+        <div class="plan-price">Rs. 2,000<span>/month</span></div>
         <ul>
-          <li>✅ Gym Access (9AM–7PM)</li>
-          <li>✅ Cardio Equipment</li>
-          <li>❌ Personal Trainer</li>
-          <li>❌ Supplements</li>
+          <li><span class="check">✅</span> Gym Access (9AM–7PM)</li>
+          <li><span class="check">✅</span> Cardio Equipment</li>
+          <li><span class="cross">❌</span> Personal Trainer</li>
+          <li><span class="cross">❌</span> Supplements</li>
         </ul>
-        <a href="register.php?plan=basic" class="btn-plan">Get Started</a>
+        <a href="register.html?plan=basic" class="btn-plan">Get Started</a>
       </div>
 
-      <div class="plan-card featured">
-        <div class="badge">Most Popular</div>
+      <div class="plan-card featured animate-on-scroll">
+        <div class="plan-badge">Most Popular</div>
         <h3>Standard</h3>
-        <div class="price">Rs. 4,000<span>/month</span></div>
+        <div class="plan-price">Rs. 4,000<span>/month</span></div>
         <ul>
-          <li>✅ Gym Access (9AM–7PM)</li>
-          <li>✅ All Equipment</li>
-          <li>✅ 2x Trainer Sessions</li>
-          <li>❌ Supplements</li>
+          <li><span class="check">✅</span> Gym Access (9AM–7PM)</li>
+          <li><span class="check">✅</span> All Equipment</li>
+          <li><span class="check">✅</span> 2x Trainer Sessions</li>
+          <li><span class="cross">❌</span> Supplements</li>
         </ul>
-        <a href="register.php?plan=standard" class="btn-plan">Get Started</a>
+        <a href="register.html?plan=standard" class="btn-plan">Get Started</a>
       </div>
 
-      <div class="plan-card">
+      <div class="plan-card animate-on-scroll">
         <h3>Premium</h3>
-        <div class="price">Rs. 7,000<span>/month</span></div>
+        <div class="plan-price">Rs. 7,000<span>/month</span></div>
         <ul>
-          <li>✅ Gym Access (9AM–7PM)</li>
-          <li>✅ All Equipment</li>
-          <li>✅ Unlimited Trainer</li>
-          <li>✅ Free Supplements</li>
+          <li><span class="check">✅</span> Gym Access (9AM–7PM)</li>
+          <li><span class="check">✅</span> All Equipment</li>
+          <li><span class="check">✅</span> Unlimited Trainer</li>
+          <li><span class="check">✅</span> Free Supplements</li>
         </ul>
-        <a href="register.php?plan=premium" class="btn-plan">Get Started</a>
+        <a href="register.html?plan=premium" class="btn-plan">Get Started</a>
       </div>
+    </div>
+  </section>
 
+  <!-- ===== ABOUT IIUI ===== -->
+  <section class="section" id="about">
+    <div class="section-header animate-on-scroll">
+      <span class="section-tag">About</span>
+      <h2>About <span class="highlight">IIUI Gym</span></h2>
+    </div>
+
+    <div class="about-grid animate-on-scroll">
+      <div class="about-image">
+        <img src="https://images.unsplash.com/photo-1571902943202-507ec2618e8f?w=600" alt="IIUI Gym Interior" loading="lazy"/>
+      </div>
+      <div class="about-text">
+        <h3>International Islamic University <span class="highlight">Islamabad</span></h3>
+        <p>Located in the heart of H-10 sector, IIUI Gym is the premier fitness destination for students and staff of the International Islamic University Islamabad.</p>
+        <p>Our facility is equipped with modern gym equipment, trained professionals, and a supportive environment that respects Islamic values.</p>
+        <ul>
+          <li>Located in IIUI Campus, H-10, Islamabad</li>
+          <li>Open Monday – Friday, 9:00 AM – 7:00 PM</li>
+          <li>Separate timings for male & female students</li>
+          <li>Prayer breaks observed during gym hours</li>
+          <li>Exclusive for @iiu.edu.pk email holders</li>
+        </ul>
+      </div>
     </div>
   </section>
 
   <!-- ===== FOOTER ===== -->
-  <footer class="footer">
-    <p>© 2026 IIUI Gym — Islamabad, Pakistan &nbsp;|&nbsp; 
-       <a href="contact.php">Contact Us</a>
-    </p>
+  <footer class="footer" id="footer">
+    <div class="footer-content">
+      <div class="footer-brand">
+        🏋️ IIUI <span class="brand-accent">GYM</span>
+      </div>
+      <p class="footer-text">
+        The official fitness center of International Islamic University Islamabad.<br/>
+        Building stronger bodies, sharper minds.
+      </p>
+      <div class="footer-links">
+        <a href="index.html">Home</a>
+        <a href="register.html">Join Now</a>
+        <a href="login.html">Member Login</a>
+        <a href="contact.html">Contact Us</a>
+        <a href="admin-login.html">Admin</a>
+      </div>
+      <div class="footer-bottom">
+        © 2026 IIUI Gym — Sector H-10, Islamabad, Pakistan &nbsp;|&nbsp; All Rights Reserved
+      </div>
+    </div>
   </footer>
 
+  <!-- Scripts -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
   <script src="main.js"></script>
 </body>
 </html>

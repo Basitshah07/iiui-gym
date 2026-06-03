@@ -1,24 +1,24 @@
-# Environment and configuration
-.env
-*.env
-db_config.php
+# Dependencies
+node_modules/
 
-# XAMPP/Local development
-/vendor/
-/node_modules/
-composer.lock
+# Environment files
+.env
+.env.local
+.env.production
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
 
 # IDE files
 .vscode/
 .idea/
-*.swp
-*.swo
-*~
-.DS_Store
 
-# Logs
-*.log
+# Firebase
+.firebase/
+firebase-debug.log
 
-# OS files
-Thumbs.db
-.DS_Store
+# Build output
+dist/
+build/
