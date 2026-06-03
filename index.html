@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<!-- ============================================
+     FILE: index.html
+     PURPOSE: Home Page — Shows hero section
+     and membership plans
+     ============================================ -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>IIUI Gym</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ===== NAVBAR ===== -->
+  <nav class="navbar">
+    <div class="nav-brand">⚡ IIUI Gym</div>
+    <ul class="nav-links">
+      <li><a href="index.html" class="active">Home</a></li>
+      <li><a href="register.php">Join Now</a></li>
+      <li><a href="member_login.php">Member Login</a></li>
+      <li><a href="contact.php">Contact</a></li>
+      <li><a href="login.php">Admin</a></li>
+    </ul>
+    <!-- Hamburger for mobile -->
+    <div class="hamburger" onclick="toggleMenu()">&#9776;</div>
+  </nav>
+
+  <!-- ===== HERO ===== -->
+  <section class="hero">
+    <div class="hero-content">
+      <h1>FORGE YOUR <span>STRENGTH</span></h1>
+      <p>The official gym of International Islamic University Islamabad. Train hard. Excel further.</p>
+      <a href="register.php" class="btn-primary">Join Today — Free Trial</a>
+    </div>
+  </section>
+
+  <!-- ===== MEMBERSHIP PLANS ===== -->
+  <section class="plans" id="plans">
+    <h2>Membership <span>Plans</span></h2>
+    <div class="plans-grid">
+
+      <div class="plan-card">
+        <h3>Basic</h3>
+        <div class="price">Rs. 2,000<span>/month</span></div>
+        <ul>
+          <li>✅ Gym Access (9AM–7PM)</li>
+          <li>✅ Cardio Equipment</li>
+          <li>❌ Personal Trainer</li>
+          <li>❌ Supplements</li>
+        </ul>
+        <a href="register.php?plan=basic" class="btn-plan">Get Started</a>
+      </div>
+
+      <div class="plan-card featured">
+        <div class="badge">Most Popular</div>
+        <h3>Standard</h3>
+        <div class="price">Rs. 4,000<span>/month</span></div>
+        <ul>
+          <li>✅ Gym Access (9AM–7PM)</li>
+          <li>✅ All Equipment</li>
+          <li>✅ 2x Trainer Sessions</li>
+          <li>❌ Supplements</li>
+        </ul>
+        <a href="register.php?plan=standard" class="btn-plan">Get Started</a>
+      </div>
+
+      <div class="plan-card">
+        <h3>Premium</h3>
+        <div class="price">Rs. 7,000<span>/month</span></div>
+        <ul>
+          <li>✅ Gym Access (9AM–7PM)</li>
+          <li>✅ All Equipment</li>
+          <li>✅ Unlimited Trainer</li>
+          <li>✅ Free Supplements</li>
+        </ul>
+        <a href="register.php?plan=premium" class="btn-plan">Get Started</a>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="footer">
+    <p>© 2026 IIUI Gym — Islamabad, Pakistan &nbsp;|&nbsp; 
+       <a href="contact.php">Contact Us</a>
+    </p>
+  </footer>
+
+  <script src="main.js"></script>
+</body>
+</html>

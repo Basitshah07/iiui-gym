@@ -1,0 +1,24 @@
+# Environment and configuration
+.env
+*.env
+db_config.php
+
+# XAMPP/Local development
+/vendor/
+/node_modules/
+composer.lock
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs
+*.log
+
+# OS files
+Thumbs.db
+.DS_Store
