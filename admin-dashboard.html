@@ -137,6 +137,10 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <!-- FIX: EmailJS script added — firebase-config.js calls emailjs.init() and
+       sendEmailNotification() is available globally; missing this caused a
+       runtime ReferenceError if email notifications were triggered. -->
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
   <script src="firebase-config.js"></script>
   <script src="main.js"></script>
   <script>

@@ -93,6 +93,8 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <!-- FIX: EmailJS script added — firebase-config.js references emailjs.init() -->
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
   <script src="firebase-config.js"></script>
   <script src="main.js"></script>
   <script>
@@ -131,12 +133,15 @@
       }, 1000);
     }
 
-    // Override resend to include timer
-    const originalResend = resendVerification;
-    resendVerification = async function() {
-      await originalResend();
+    // FIX: Don't reassign a hoisted function declaration — call it via a named
+    // wrapper instead. The original resendVerification() from main.js is called
+    // directly and the timer is started after it resolves.
+    document.getElementById('resendBtn').addEventListener('click', async function () {
+      await resendVerification();
       startResendTimer();
-    };
+    });
+    // Remove the inline onclick so this listener is the only handler
+    document.getElementById('resendBtn').removeAttribute('onclick');
   </script>
 </body>
 </html>

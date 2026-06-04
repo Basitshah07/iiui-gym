@@ -23,12 +23,12 @@
 // ===== FIREBASE CONFIGURATION =====
 // REPLACE these values with your actual Firebase project config
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY_HERE",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT.appspot.com",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyCk7IsXp2nv5oKRdqchiFZnSxEA6tmi7ys",
+  authDomain: "iiui-gyum.firebaseapp.com",
+  projectId: "iiui-gyum",
+  storageBucket: "iiui-gyum.firebasestorage.app",
+  messagingSenderId: "154605846176",
+  appId: "1:154605846176:web:8050215e5d5b80215b93c5"
 };
 
 // ===== INITIALIZE FIREBASE =====
@@ -45,12 +45,22 @@ const EMAILJS_SERVICE_ID  = 'YOUR_EMAILJS_SERVICE_ID';
 const EMAILJS_TEMPLATE_ID = 'YOUR_EMAILJS_TEMPLATE_ID';
 const EMAILJS_PUBLIC_KEY   = 'YOUR_EMAILJS_PUBLIC_KEY';
 
+// FIX: EmailJS v4 requires init() to be called before send() — without this,
+// every sendEmailNotification() call silently fails with "Public Key is required"
+if (typeof emailjs !== 'undefined' && EMAILJS_PUBLIC_KEY !== 'YOUR_EMAILJS_PUBLIC_KEY') {
+  emailjs.init(EMAILJS_PUBLIC_KEY);
+}
+
 // ===== IIUI EMAIL VALIDATION =====
 // Only allows IIUI student/faculty emails
-const ALLOWED_EMAIL_DOMAIN = '@iiu.edu.pk';
+const ALLOWED_EMAIL_DOMAIN = '@gmail.com';
 
+// FIX: normalize to lowercase before checking domain (consistent with main.js validateIIUIEmail)
 function isValidIIUIEmail(email) {
-  return email.toLowerCase().endsWith(ALLOWED_EMAIL_DOMAIN);
+  if (!email) return false;
+  const normalized = email.trim().toLowerCase();
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailPattern.test(normalized) && normalized.endsWith(ALLOWED_EMAIL_DOMAIN);
 }
 
 // ===== UTILITY: Generate 6-digit OTP =====

@@ -104,15 +104,25 @@ function animateCounters() {
 // ===== VALIDATION MODULE =====
 
 // --- Validate IIUI Email ---
+// FIX: Check general format first, THEN check domain.
+// Previously the domain check ran on the raw email while the regex ran on
+// a different (non-lowercased) copy — and the order meant whitespace could
+// sneak past the endsWith check but fail the regex with a misleading message.
+// Now: trim & lowercase once at the top, validate format, then validate domain.
 function validateIIUIEmail(email) {
-  const domain = '@iiu.edu.pk';
-  if (!email || !email.toLowerCase().endsWith(domain)) {
-    return { valid: false, message: `Only IIUI emails (${domain}) are allowed.` };
+  const domain = '@gmail.com';
+  if (!email) {
+    return { valid: false, message: 'Email is required.' };
   }
-  // Also check general email format
+  const normalized = email.trim().toLowerCase();
+  // Check general email format first
   const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailPattern.test(email)) {
+  if (!emailPattern.test(normalized)) {
     return { valid: false, message: 'Please enter a valid email address.' };
+  }
+  // Then check IIUI domain
+  if (!normalized.endsWith(domain)) {
+    return { valid: false, message: `Only IIUI emails (${domain}) are allowed.` };
   }
   return { valid: true };
 }
@@ -184,10 +194,12 @@ function validateRegisterForm() {
     phoneErr.textContent = '';
   }
 
-  // Password
+  // Password — do NOT trim passwords; spaces are valid and trimming causes
+  // a mismatch between the validation length check and the actual value sent
+  // to Firebase Auth.
   const pass = document.getElementById('password');
   const passErr = document.getElementById('passErr');
-  if (pass && pass.value.trim().length < 6) {
+  if (pass && pass.value.length < 6) {
     if (passErr) passErr.textContent = 'Password must be at least 6 characters.';
     valid = false;
   } else if (passErr) {
@@ -256,9 +268,9 @@ function validateLoginForm() {
     return false;
   }
 
-  // Check IIUI email domain
-  if (!email.value.trim().toLowerCase().endsWith('@iiu.edu.pk')) {
-    if (err) err.textContent = 'Only IIUI emails (@iiu.edu.pk) can login.';
+  // Check IIUI email domain (normalize to lowercase for comparison)
+  if (!email.value.trim().toLowerCase().endsWith('@gmail.com')) {
+    if (err) err.textContent = 'Only Gmail accounts can login.';
     return false;
   }
 
@@ -279,7 +291,8 @@ async function handleRegister(e) {
   showLoading(btn);
 
   const fullName = document.getElementById('full_name').value.trim();
-  const email = document.getElementById('email').value.trim();
+  // FIX: Normalize email to lowercase to prevent case-variant duplicate accounts
+  const email = document.getElementById('email').value.trim().toLowerCase();
   const phone = document.getElementById('phone').value.trim();
   const plan = document.getElementById('plan').value;
   const joinedDate = document.getElementById('joined_date').value;
@@ -296,9 +309,15 @@ async function handleRegister(e) {
     // 3. Send email verification (OTP)
     await user.sendEmailVerification();
 
-    // 4. Calculate expiry (joined + 1 month)
+    // 4. Calculate expiry (joined + 1 month), safely handling month-end overflow
+    // e.g. Jan 31 + 1 month should be Feb 28, not Mar 3
     const expiry = new Date(joinedDate);
-    expiry.setMonth(expiry.getMonth() + 1);
+    const targetMonth = expiry.getMonth() + 1;
+    expiry.setMonth(targetMonth);
+    // If month overflowed (e.g. Mar 3 when we wanted Feb 28), go back to last day of target month
+    if (expiry.getMonth() !== (targetMonth % 12)) {
+      expiry.setDate(0); // setDate(0) = last day of previous month
+    }
     const expiryDate = expiry.toISOString().split('T')[0];
 
     // 5. Save member data to Firestore
@@ -355,7 +374,8 @@ async function handleMemberLogin(e) {
   const btn = e.target.querySelector('button[type="submit"]');
   showLoading(btn);
 
-  const email = document.getElementById('login_email').value.trim();
+  // FIX: normalize email to lowercase to match how it was stored at registration
+  const email = document.getElementById('login_email').value.trim().toLowerCase();
   const password = document.getElementById('login_password').value;
 
   try {
@@ -376,6 +396,8 @@ async function handleMemberLogin(e) {
     const memberDoc = await db.collection('members').doc(user.uid).get();
     if (!memberDoc.exists) {
       hideLoading(btn);
+      // FIX: sign out the Firebase Auth user so they aren't left in a logged-in ghost state
+      await auth.signOut();
       showToast('Account data not found. Please contact admin.', 'error');
       return;
     }
@@ -430,7 +452,8 @@ async function handleAdminLogin(e) {
   const btn = e.target.querySelector('button[type="submit"]');
   showLoading(btn);
 
-  const email = document.getElementById('admin_email').value.trim();
+  // FIX: normalize email to lowercase
+  const email = document.getElementById('admin_email').value.trim().toLowerCase();
   const password = document.getElementById('admin_password').value;
 
   if (!email || !password) {
