@@ -108,20 +108,34 @@ function hideLoading(button) {
 
 // ===== AUTH STATE LISTENER =====
 // Redirects users based on login state
+// FIX: Hide page body immediately to prevent flash of protected content
+// before the async Firestore verification check completes.
 function setupAuthGuard(requiredRole) {
+  // Hide the entire page until auth check is done
+  document.body.style.visibility = 'hidden';
+  document.body.style.opacity = '0';
+
   auth.onAuthStateChanged(async (user) => {
     if (requiredRole === 'member') {
       if (!user) {
         window.location.href = 'login.html';
         return;
       }
-      // FIX: check Firestore 'verified' flag (set by OTP verification)
-      // instead of Firebase's emailVerified, which is no longer used.
+      // Check Firestore 'verified' flag (set by OTP verification)
       const memberDoc = await db.collection('members').doc(user.uid).get();
       if (!memberDoc.exists || !memberDoc.data().verified) {
         window.location.href = 'verify-otp.html';
         return;
       }
+      // Check if member is banned/deactivated
+      if (memberDoc.data().status === 'banned') {
+        await auth.signOut();
+        window.location.href = 'login.html';
+        return;
+      }
+      // All checks passed — show the page
+      document.body.style.visibility = 'visible';
+      document.body.style.opacity = '1';
     } else if (requiredRole === 'admin') {
       if (!user) {
         window.location.href = 'admin-login.html';
@@ -130,10 +144,17 @@ function setupAuthGuard(requiredRole) {
       // Check admin role in Firestore
       const adminDoc = await db.collection('admins').doc(user.uid).get();
       if (!adminDoc.exists) {
-        auth.signOut();
+        await auth.signOut();
         window.location.href = 'admin-login.html';
         return;
       }
+      // All checks passed — show the page
+      document.body.style.visibility = 'visible';
+      document.body.style.opacity = '1';
+    } else {
+      // No role required — just show the page
+      document.body.style.visibility = 'visible';
+      document.body.style.opacity = '1';
     }
   });
 }
