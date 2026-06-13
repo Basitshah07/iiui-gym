@@ -40,36 +40,36 @@
       <span class="form-icon">📧</span>
       <h2>Verify Your <span class="highlight">Email</span></h2>
       <p class="form-subtitle">
-        We've sent a verification link to your IIUI email address.
-        Click the link in the email, then come back here and press the button below.
+        We've sent a 6-digit verification code to your email address.
+        Enter it below to activate your account.
       </p>
 
       <div class="alert warning" style="text-align:left;">
-        ⚠️ Check your <strong>inbox</strong> and <strong>spam folder</strong> for the verification email from Firebase.
+        ⚠️ Check your <strong>inbox</strong> and <strong>spam folder</strong> for the OTP email.
       </div>
 
-      <!-- OTP Visual Display (decorative) -->
+      <!-- OTP Input -->
       <div class="otp-container">
-        <input class="otp-input" type="text" maxlength="1" value="●" readonly/>
-        <input class="otp-input" type="text" maxlength="1" value="●" readonly/>
-        <input class="otp-input" type="text" maxlength="1" value="●" readonly/>
-        <input class="otp-input" type="text" maxlength="1" value="●" readonly/>
-        <input class="otp-input" type="text" maxlength="1" value="●" readonly/>
-        <input class="otp-input" type="text" maxlength="1" value="●" readonly/>
+        <input class="otp-input" type="text" inputmode="numeric" maxlength="1" data-otp-index="0"/>
+        <input class="otp-input" type="text" inputmode="numeric" maxlength="1" data-otp-index="1"/>
+        <input class="otp-input" type="text" inputmode="numeric" maxlength="1" data-otp-index="2"/>
+        <input class="otp-input" type="text" inputmode="numeric" maxlength="1" data-otp-index="3"/>
+        <input class="otp-input" type="text" inputmode="numeric" maxlength="1" data-otp-index="4"/>
+        <input class="otp-input" type="text" inputmode="numeric" maxlength="1" data-otp-index="5"/>
       </div>
 
       <p class="text-muted" style="font-size:0.82rem; margin-bottom:1.5rem;">
-        A verification email has been sent. Please click the link in the email to verify your account.
+        Enter the 6-digit code sent to your email. It expires in 15 minutes.
       </p>
 
       <!-- Action Buttons -->
-      <button class="btn-primary full-width" onclick="checkVerification()" id="checkVerifyBtn">
-        ✅ I've Verified — Continue
+      <button class="btn-primary full-width" onclick="submitOTP()" id="checkVerifyBtn">
+        ✅ Verify Code
       </button>
 
       <button class="btn-outline full-width mt-2" onclick="resendVerification()" id="resendBtn"
               style="width:100%; margin-top:0.8rem;">
-        📩 Resend Verification Email
+        📩 Resend Code
       </button>
 
       <div class="resend-timer mt-2" id="resendTimer"></div>
@@ -98,20 +98,47 @@
   <script src="firebase-config.js"></script>
   <script src="main.js"></script>
   <script>
-    // If already verified, redirect
+    // If already verified (Firestore flag), redirect to dashboard
     auth.onAuthStateChanged(async (user) => {
       if (!user) {
         window.location.href = 'login.html';
         return;
       }
-      await user.reload();
-      if (user.emailVerified) {
-        showToast('Email already verified! Redirecting...', 'success');
-        setTimeout(() => {
-          window.location.href = 'dashboard.html';
-        }, 1500);
+      try {
+        const memberDoc = await db.collection('members').doc(user.uid).get();
+        if (memberDoc.exists && memberDoc.data().verified) {
+          showToast('Email already verified! Redirecting...', 'success');
+          setTimeout(() => {
+            window.location.href = 'dashboard.html';
+          }, 1500);
+        }
+      } catch (err) {
+        console.error('Verification check error:', err);
       }
     });
+
+    // OTP input boxes: auto-advance to next box, auto-back on backspace
+    const otpInputs = Array.from(document.querySelectorAll('.otp-input'));
+    otpInputs.forEach((input, idx) => {
+      input.addEventListener('input', () => {
+        // Only allow digits
+        input.value = input.value.replace(/[^0-9]/g, '');
+        if (input.value && idx < otpInputs.length - 1) {
+          otpInputs[idx + 1].focus();
+        }
+      });
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Backspace' && !input.value && idx > 0) {
+          otpInputs[idx - 1].focus();
+        }
+      });
+    });
+
+    // Collect the 6 digits and verify
+    function submitOTP() {
+      const code = otpInputs.map(i => i.value).join('');
+      verifyOTP(code);
+    }
 
     // Resend cooldown
     let resendCooldown = 0;

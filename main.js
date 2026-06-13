@@ -306,8 +306,15 @@ async function handleRegister(e) {
     // 2. Update profile with display name
     await user.updateProfile({ displayName: fullName });
 
-    // 3. Send email verification (OTP)
-    await user.sendEmailVerification();
+    // 3. Generate a 6-digit OTP, store it in Firestore, and email it via EmailJS
+    const otpCode = String(Math.floor(100000 + Math.random() * 900000));
+    const expiresAt = Date.now() + 15 * 60 * 1000; // valid for 15 minutes
+    await db.collection('otps').doc(user.uid).set({
+      code: otpCode,
+      email: email,
+      expiresAt: expiresAt
+    });
+    await sendOTPEmail(email, otpCode);
 
     // 4. Calculate expiry (joined + 1 month), safely handling month-end overflow
     // e.g. Jan 31 + 1 month should be Feb 28, not Mar 3
@@ -331,6 +338,7 @@ async function handleRegister(e) {
       joined_date: joinedDate,
       expiry_date: expiryDate,
       status: 'active',
+      verified: false,
       created_at: firebase.firestore.FieldValue.serverTimestamp()
     });
 
@@ -342,7 +350,7 @@ async function handleRegister(e) {
     );
 
     hideLoading(btn);
-    showToast('Registration successful! Please check your email for verification.', 'success');
+    showToast('Registration successful! Check your email for the 6-digit OTP code.', 'success');
 
     // Redirect to verification page
     setTimeout(() => {
@@ -382,16 +390,6 @@ async function handleMemberLogin(e) {
     const userCredential = await auth.signInWithEmailAndPassword(email, password);
     const user = userCredential.user;
 
-    // Check email verification
-    if (!user.emailVerified) {
-      hideLoading(btn);
-      showToast('Please verify your email first. Check your inbox.', 'warning');
-      setTimeout(() => {
-        window.location.href = 'verify-otp.html';
-      }, 1500);
-      return;
-    }
-
     // Check membership status in Firestore
     const memberDoc = await db.collection('members').doc(user.uid).get();
     if (!memberDoc.exists) {
@@ -402,7 +400,18 @@ async function handleMemberLogin(e) {
       return;
     }
 
-    const data = memberDoc.data();
+    // Check OTP verification status (stored in Firestore, set by verify-otp.html)
+    const memberData = memberDoc.data();
+    if (!memberData.verified) {
+      hideLoading(btn);
+      showToast('Please verify your email with the OTP first.', 'warning');
+      setTimeout(() => {
+        window.location.href = 'verify-otp.html';
+      }, 1500);
+      return;
+    }
+
+    const data = memberData;
 
     // Check expiry
     const today = new Date();
@@ -505,7 +514,7 @@ async function handleLogout() {
   }
 }
 
-// --- Resend Verification Email ---
+// --- Resend OTP Email ---
 async function resendVerification() {
   const user = auth.currentUser;
   if (!user) {
@@ -514,27 +523,69 @@ async function resendVerification() {
   }
 
   try {
-    await user.sendEmailVerification();
-    showToast('Verification email sent! Check your inbox.', 'success');
+    const otpCode = String(Math.floor(100000 + Math.random() * 900000));
+    const expiresAt = Date.now() + 15 * 60 * 1000;
+    await db.collection('otps').doc(user.uid).set({
+      code: otpCode,
+      email: user.email,
+      expiresAt: expiresAt
+    });
+    const sent = await sendOTPEmail(user.email, otpCode);
+    if (sent) {
+      showToast('A new OTP has been sent to your email.', 'success');
+    } else {
+      showToast('Failed to send OTP. Try again later.', 'error');
+    }
   } catch (error) {
-    console.error('Resend error:', error);
-    showToast('Failed to send verification email. Try again later.', 'error');
+    console.error('Resend OTP error:', error);
+    showToast('Failed to send OTP. Try again later.', 'error');
   }
 }
 
-// --- Check Verification Status ---
-async function checkVerification() {
+// --- Verify the 6-digit OTP entered by the user ---
+async function verifyOTP(enteredCode) {
   const user = auth.currentUser;
-  if (!user) return;
+  if (!user) {
+    showToast('No user logged in.', 'error');
+    return;
+  }
 
-  await user.reload();
-  if (user.emailVerified) {
+  if (!enteredCode || enteredCode.length !== 6) {
+    showToast('Please enter the 6-digit code.', 'warning');
+    return;
+  }
+
+  try {
+    const otpDoc = await db.collection('otps').doc(user.uid).get();
+    if (!otpDoc.exists) {
+      showToast('No OTP found. Please click Resend to get a new code.', 'error');
+      return;
+    }
+
+    const otpData = otpDoc.data();
+
+    if (Date.now() > otpData.expiresAt) {
+      showToast('This OTP has expired. Please request a new one.', 'error');
+      return;
+    }
+
+    if (enteredCode !== otpData.code) {
+      showToast('Incorrect OTP. Please try again.', 'error');
+      return;
+    }
+
+    // Mark member as verified
+    await db.collection('members').doc(user.uid).update({ verified: true });
+    // Clean up the used OTP
+    await db.collection('otps').doc(user.uid).delete();
+
     showToast('Email verified successfully! Redirecting...', 'success');
     setTimeout(() => {
       window.location.href = 'dashboard.html';
     }, 1500);
-  } else {
-    showToast('Email not verified yet. Please check your inbox.', 'warning');
+  } catch (error) {
+    console.error('OTP verification error:', error);
+    showToast('Verification failed. Please try again.', 'error');
   }
 }
 

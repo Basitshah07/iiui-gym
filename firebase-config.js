@@ -41,9 +41,9 @@ const db   = firebase.firestore();
 // ===== EMAILJS CONFIG =====
 // Sign up free at https://www.emailjs.com
 // 200 emails/month on free tier
-const EMAILJS_SERVICE_ID  = 'YOUR_EMAILJS_SERVICE_ID';
-const EMAILJS_TEMPLATE_ID = 'YOUR_EMAILJS_TEMPLATE_ID';
-const EMAILJS_PUBLIC_KEY   = 'YOUR_EMAILJS_PUBLIC_KEY';
+const EMAILJS_SERVICE_ID  = 'service_6ycf326';
+const EMAILJS_TEMPLATE_ID = 'template_6wd69pn';
+const EMAILJS_PUBLIC_KEY   = 'EefxSXj2FHFCi4IUr';
 
 // FIX: EmailJS v4 requires init() to be called before send() — without this,
 // every sendEmailNotification() call silently fails with "Public Key is required"
@@ -115,7 +115,10 @@ function setupAuthGuard(requiredRole) {
         window.location.href = 'login.html';
         return;
       }
-      if (!user.emailVerified) {
+      // FIX: check Firestore 'verified' flag (set by OTP verification)
+      // instead of Firebase's emailVerified, which is no longer used.
+      const memberDoc = await db.collection('members').doc(user.uid).get();
+      if (!memberDoc.exists || !memberDoc.data().verified) {
         window.location.href = 'verify-otp.html';
         return;
       }
@@ -151,6 +154,31 @@ async function sendEmailNotification(toEmail, toName, subject, body) {
     console.log('Email notification sent to', toEmail);
   } catch (err) {
     console.warn('Email notification failed:', err);
+  }
+}
+
+// ===== SEND 6-DIGIT OTP EMAIL via EmailJS =====
+// Uses the "One-Time Password" template, which expects {{passcode}}, {{email}}, {{time}}
+async function sendOTPEmail(toEmail, otpCode) {
+  try {
+    if (typeof emailjs === 'undefined') {
+      console.warn('EmailJS not loaded — cannot send OTP email');
+      return false;
+    }
+    const expiryTime = new Date(Date.now() + 15 * 60 * 1000).toLocaleString('en-PK', {
+      dateStyle: 'medium',
+      timeStyle: 'short'
+    });
+    await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+      passcode: otpCode,
+      email: toEmail,
+      time: expiryTime
+    }, EMAILJS_PUBLIC_KEY);
+    console.log('OTP email sent to', toEmail);
+    return true;
+  } catch (err) {
+    console.error('OTP email failed:', err);
+    return false;
   }
 }
 
