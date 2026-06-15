@@ -171,4 +171,183 @@
     document.getElementById('resendBtn').removeAttribute('onclick');
   </script>
 </body>
+</html><!DOCTYPE html>
+<!-- ============================================
+     FILE: verify-otp.html
+     PURPOSE: Email OTP Verification Page
+     FEATURES:
+     - Shows verification status
+     - Resend verification email button
+     - Check verification status button
+     - Auto-redirect when verified
+     ============================================ -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="Verify your IIUI Gym account email address to activate your membership."/>
+  <title>Verify Email — IIUI Gym</title>
+  <link rel="stylesheet" href="style.css"/>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏋️</text></svg>">
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar" id="navbar">
+    <a href="index.html" class="nav-brand">
+      <span class="brand-icon">🏋️</span>
+      <span>IIUI <span class="brand-accent">GYM</span></span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="register.html">Join Now</a></li>
+      <li><a href="login.html">Member Login</a></li>
+      <li><a href="contact.html">Contact</a></li>
+    </ul>
+    <div class="hamburger" onclick="toggleMenu()" aria-label="Toggle navigation menu">&#9776;</div>
+  </nav>
+
+  <!-- VERIFICATION SECTION -->
+  <section class="form-section">
+    <div class="form-card login-card" style="max-width:480px;">
+      <span class="form-icon">📧</span>
+      <h2>Verify Your <span class="highlight">Email</span></h2>
+      <p class="form-subtitle">
+        We've sent a 6-digit verification code to your email address.
+        Enter it below to activate your account.
+      </p>
+
+      <div class="alert warning" style="text-align:left;">
+        ⚠️ Check your <strong>inbox</strong> and <strong>spam folder</strong> for the OTP email.
+      </div>
+
+      <!-- OTP Input -->
+      <div class="otp-container">
+        <input class="otp-input" type="text" inputmode="numeric" maxlength="1" data-otp-index="0"/>
+        <input class="otp-input" type="text" inputmode="numeric" maxlength="1" data-otp-index="1"/>
+        <input class="otp-input" type="text" inputmode="numeric" maxlength="1" data-otp-index="2"/>
+        <input class="otp-input" type="text" inputmode="numeric" maxlength="1" data-otp-index="3"/>
+        <input class="otp-input" type="text" inputmode="numeric" maxlength="1" data-otp-index="4"/>
+        <input class="otp-input" type="text" inputmode="numeric" maxlength="1" data-otp-index="5"/>
+      </div>
+
+      <p class="text-muted" style="font-size:0.82rem; margin-bottom:1.5rem;">
+        Enter the 6-digit code sent to your email. It expires in 15 minutes.
+      </p>
+
+      <!-- Action Buttons -->
+      <button class="btn-primary full-width" onclick="submitOTP()" id="checkVerifyBtn">
+        ✅ Verify Code
+      </button>
+
+      <button class="btn-outline full-width mt-2" onclick="resendVerification()" id="resendBtn"
+              style="width:100%; margin-top:0.8rem;">
+        📩 Resend Code
+      </button>
+
+      <div class="resend-timer mt-2" id="resendTimer"></div>
+
+      <p class="form-footer">
+        <a href="login.html">← Back to Login</a>
+      </p>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-bottom">
+        © 2026 IIUI Gym — Sector H-10, Islamabad, Pakistan
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <!-- FIX: EmailJS script added — firebase-config.js references emailjs.init() -->
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="main.js"></script>
+  <script>
+    // FIX: Only auto-redirect if already verified on page load.
+    // Using a one-shot flag so this listener doesn't fire again after
+    // verifyOTP() writes verified=true — that function handles its own redirect.
+    // Without this flag, both would race to redirect simultaneously.
+    let redirectHandled = false;
+    auth.onAuthStateChanged(async (user) => {
+      if (redirectHandled) return;
+      if (!user) {
+        window.location.href = 'login.html';
+        return;
+      }
+      try {
+        const memberDoc = await db.collection('members').doc(user.uid).get();
+        if (memberDoc.exists && memberDoc.data().verified) {
+          redirectHandled = true;
+          showToast('Email already verified! Redirecting...', 'success');
+          setTimeout(() => {
+            window.location.href = 'dashboard.html';
+          }, 1500);
+        }
+      } catch (err) {
+        console.error('Verification check error:', err);
+      }
+    });
+
+    // OTP input boxes: auto-advance to next box, auto-back on backspace
+    const otpInputs = Array.from(document.querySelectorAll('.otp-input'));
+    otpInputs.forEach((input, idx) => {
+      input.addEventListener('input', () => {
+        // Only allow digits
+        input.value = input.value.replace(/[^0-9]/g, '');
+        if (input.value && idx < otpInputs.length - 1) {
+          otpInputs[idx + 1].focus();
+        }
+      });
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Backspace' && !input.value && idx > 0) {
+          otpInputs[idx - 1].focus();
+        }
+      });
+    });
+
+    // Collect the 6 digits and verify
+    function submitOTP() {
+      const code = otpInputs.map(i => i.value).join('');
+      verifyOTP(code);
+    }
+
+    // Resend cooldown
+    let resendCooldown = 0;
+    function startResendTimer() {
+      resendCooldown = 60;
+      const resendBtn = document.getElementById('resendBtn');
+      const timerEl = document.getElementById('resendTimer');
+
+      resendBtn.disabled = true;
+
+      const interval = setInterval(() => {
+        resendCooldown--;
+        timerEl.textContent = `Resend available in ${resendCooldown}s`;
+        if (resendCooldown <= 0) {
+          clearInterval(interval);
+          resendBtn.disabled = false;
+          timerEl.textContent = '';
+        }
+      }, 1000);
+    }
+
+    // FIX: Don't reassign a hoisted function declaration — call it via a named
+    // wrapper instead. The original resendVerification() from main.js is called
+    // directly and the timer is started after it resolves.
+    document.getElementById('resendBtn').addEventListener('click', async function () {
+      await resendVerification();
+      startResendTimer();
+    });
+    // Remove the inline onclick so this listener is the only handler
+    document.getElementById('resendBtn').removeAttribute('onclick');
+  </script>
+</body>
 </html>

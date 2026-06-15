@@ -123,17 +123,32 @@
   <script src="firebase-config.js"></script>
   <script src="main.js"></script>
   <script>
-    // Guard: redirect if not logged in
-    auth.onAuthStateChanged((user) => {
+    // Guard: redirect if not logged in or not OTP-verified
+    // FIX: Use Firestore 'verified' flag (custom OTP system), NOT Firebase's
+    // built-in user.emailVerified — which is never set by our OTP flow and
+    // caused an infinite redirect loop: OTP verified → dashboard → back to OTP.
+    auth.onAuthStateChanged(async (user) => {
       if (!user) {
         window.location.href = 'login.html';
         return;
       }
-      if (!user.emailVerified) {
-        window.location.href = 'verify-otp.html';
+      try {
+        const memberDoc = await db.collection('members').doc(user.uid).get();
+        if (!memberDoc.exists || !memberDoc.data().verified) {
+          window.location.href = 'verify-otp.html';
+          return;
+        }
+        if (memberDoc.data().status === 'banned') {
+          await auth.signOut();
+          window.location.href = 'login.html';
+          return;
+        }
+      } catch (err) {
+        console.error('Auth guard error:', err);
+        window.location.href = 'login.html';
         return;
       }
-      // Load dashboard data
+      // All checks passed — load dashboard
       loadMemberDashboard();
     });
   </script>
