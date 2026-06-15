@@ -161,7 +161,9 @@
           window.location.href = 'admin-login.html';
           return;
         }
-        // Load dashboard data
+        // Show page and load dashboard data
+        document.body.style.visibility = 'visible';
+        document.body.style.opacity = '1';
         loadAdminDashboard();
       } catch (err) {
         console.error('Admin check error:', err);
